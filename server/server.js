@@ -6,6 +6,7 @@ const path = require("path");
 const db = require("./utils/db.js");
 const { hash, compare } = require("./utils/bc.js");
 const cookieSession = require("cookie-session");
+const csurf = require("csurf");
 
 //middleware
 
@@ -15,6 +16,13 @@ app.use(
         maxAge: 1000 * 60 * 60 * 24 * 14,
     })
 );
+
+app.use(csurf());
+
+app.use(function (req, res, next) {
+    res.cookie("mytoken", req.csrfToken());
+    next();
+});
 
 app.use(express.urlencoded({ extended: false }));
 
@@ -39,7 +47,7 @@ app.get("/welcome", (req, res) => {
     }
 });
 
-app.post("/registration", (req, res) => {
+app.post("/register", (req, res) => {
     // console.log("req.body", req.body);
     if (
         req.body.first &&
@@ -67,6 +75,36 @@ app.post("/registration", (req, res) => {
     } else {
         res.json({ success: false, error: true });
     }
+});
+
+app.post("/login", (req, res) => {
+    const { email, password } = req.body;
+    // console.log("email & password:");
+    if (email == "" || password == "") {
+        return res.json({
+            success: false,
+            error: true,
+        });
+    }
+
+    db.getUser(email)
+        .then(({ rows }) => {
+            const password_hash = rows[0].password_hash;
+            const id = rows[0].id;
+            return compare(password, password_hash).then((match) => {
+                console.log("match:", match);
+                if (match) {
+                    req.session.userId = id;
+                    res.json({ success: true, error: false });
+                } else {
+                    res.json({ success: false, error: true });
+                }
+            });
+        })
+        .catch((error) => {
+            console.log("Error:", error);
+            return res.json({ success: false, error: true });
+        });
 });
 
 app.get("*", function (req, res) {

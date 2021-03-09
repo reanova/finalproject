@@ -3,9 +3,9 @@ import instance from "./axios";
 // import axios from "./axios";
 import { Link } from "react-router-dom";
 
-export default class Registration extends React.Component {
-    constructor(props) {
-        super(props);
+export default class Login extends React.Component {
+    constructor() {
+        super();
         this.state = {
             success: true,
             error: false,
@@ -15,7 +15,7 @@ export default class Registration extends React.Component {
     handleClick() {
         // console.log("clicked!!!");
         instance
-            .post("/register", this.state)
+            .post("/login", this.state)
             .then(({ data }) => {
                 console.log("data", data);
                 if (data.success) {
@@ -29,7 +29,7 @@ export default class Registration extends React.Component {
                 }
             })
             .catch((error) => {
-                console.log("err in axios POST /registration: ", error);
+                console.log("err in axios POST /login: ", error);
             });
     }
 
@@ -57,26 +57,6 @@ export default class Registration extends React.Component {
                 <span>
                     *
                     <input
-                        type="text"
-                        name="first"
-                        placeholder="First name"
-                        onChange={(e) => this.handleChange(e)}
-                    />
-                </span>
-                <br />
-                <span>
-                    *
-                    <input
-                        type="text"
-                        name="last"
-                        placeholder="Last Name"
-                        onChange={(e) => this.handleChange(e)}
-                    />
-                </span>
-                <br />
-                <span>
-                    *
-                    <input
                         type="email"
                         name="email"
                         placeholder="Email"
@@ -99,9 +79,9 @@ export default class Registration extends React.Component {
                     SUBMIT
                 </button>
                 <p>
-                    Already a member?{" "}
-                    <Link to="/login" id="loginClick">
-                        LOG IN
+                    Not a member?{" "}
+                    <Link to="/" id="loginClick">
+                        REGISTER
                     </Link>
                 </p>
             </div>
