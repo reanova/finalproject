@@ -16,7 +16,7 @@ export default class Registration extends React.Component {
             .post("/registration", this.state)
             .then(({ data }) => {
                 console.log("data", data);
-                if (data) {
+                if (data.success) {
                     // redirect
                     location.replace("/");
                 } else {
@@ -26,8 +26,8 @@ export default class Registration extends React.Component {
                     });
                 }
             })
-            .catch((err) => {
-                console.log("err in axios POST /registration: ", err);
+            .catch((error) => {
+                console.log("err in axios POST /registration: ", error);
             });
     }
 
@@ -49,31 +49,59 @@ export default class Registration extends React.Component {
 
     render() {
         return (
-            <div>
-                <h1>Registration</h1>
-                {this.state.error && <p>something went wrong :(</p>}
-                <input
-                    name="first"
-                    placeholder="first"
-                    onChange={(e) => this.handleChange(e)}
-                />
-                <input
-                    name="last"
-                    placeholder="last"
-                    onChange={(e) => this.handleChange(e)}
-                />
-                <input
-                    name="email"
-                    placeholder="email"
-                    onChange={(e) => this.handleChange(e)}
-                />
-                <input
-                    name="password"
-                    placeholder="password"
-                    type="password"
-                    onChange={(e) => this.handleChange(e)}
-                />
-                <button onClick={() => this.handleClick()}>submit!</button>
+            <div className="form">
+                <h3>Register here:</h3>
+                {this.state.error && <p>Something went wrong</p>}
+                <span>
+                    *
+                    <input
+                        type="text"
+                        name="first"
+                        placeholder="First name"
+                        onChange={(e) => this.handleChange(e)}
+                    />
+                </span>
+                <br />
+                <span>
+                    *
+                    <input
+                        type="text"
+                        name="last"
+                        placeholder="Last Name"
+                        onChange={(e) => this.handleChange(e)}
+                    />
+                </span>
+                <br />
+                <span>
+                    *
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="Email"
+                        onChange={(e) => this.handleChange(e)}
+                    />
+                </span>
+                <br />
+                <span>
+                    *
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Password"
+                        onChange={(e) => this.handleChange(e)}
+                    />
+                </span>
+                <span id="mandatory">* Mandatory fields</span>
+                <br />
+                <button id="submit" onClick={() => this.handleClick()}>
+                    SUBMIT
+                </button>
+                <p>
+                    Already a member?{" "}
+                    <a href="#" id="loginClick">
+                        LOG IN
+                    </a>
+                </p>
             </div>
         );
     }

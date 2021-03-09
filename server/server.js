@@ -8,11 +8,7 @@ const { hash, compare } = require("./utils/bc.js");
 const cookieSession = require("cookie-session");
 
 //middleware
-app.use(express.json());
 
-app.use(compression());
-
-app.use(express.urlencoded({ extended: false }));
 app.use(
     cookieSession({
         secret: `I am hAngry`,
@@ -20,11 +16,20 @@ app.use(
     })
 );
 
+app.use(express.urlencoded({ extended: false }));
+
+app.use(compression());
+
 app.use(express.static(path.join(__dirname, "..", "client", "public")));
+
+app.use(express.json());
+
+//routes
 
 app.get("/welcome", (req, res) => {
     // is going to run if the user puts /welcome in the url bar
     if (req.session.userId) {
+        console.log("userID is", req.session.userId);
         // if the user is logged in, they are NOT allowed to see the welcome page
         // so we redirect them away from /welcome and towards /, a page they're allowed to see
         res.redirect("/");
@@ -34,35 +39,42 @@ app.get("/welcome", (req, res) => {
     }
 });
 
-app.post("/register", (req, res) => {
+app.post("/registration", (req, res) => {
     // console.log("req.body", req.body);
-    const { first, last, email, password } = req.body;
-    hash(password)
-        .then((password_hash) => {
-            db.addUser(first, last, email, password_hash)
-                .then(({ rows }) => {
-                    console.log("rows", rows);
-                    req.session.userId = rows[0].id;
-                    res.json({ success: true });
-                })
-                .catch((err) => {
-                    console.log("Error:", err);
-                    if (err.message.includes("violates check constraint")) {
-                        err.message =
-                            "No can do. Please fill in all the input fields";
-                    } else {
-                        err.message = "That email already exists";
-                    }
-                    res.json(err.message);
-                });
-        })
-        .catch((error) => {
-            console.log("Error with password_hash:", error);
-        });
+    if (
+        req.body.first &&
+        req.body.last &&
+        req.body.email &&
+        req.body.password
+    ) {
+        const { first, last, email, password } = req.body;
+        hash(password)
+            .then((password_hash) => {
+                db.addUser(first, last, email, password_hash)
+                    .then(({ rows }) => {
+                        console.log("rows", rows);
+                        req.session.userId = rows[0].id;
+                        res.json({ data: rows[0], success: true });
+                    })
+                    .catch((error) => {
+                        console.log("Error:", error);
+                        res.json({ success: false, error: true });
+                    });
+            })
+            .catch((error) => {
+                console.log("Error with password_hash:", error);
+            });
+    } else {
+        res.json({ success: false, error: true });
+    }
 });
 
 app.get("*", function (req, res) {
-    res.sendFile(path.join(__dirname, "..", "client", "index.html"));
+    if (!req.session.userId) {
+        res.redirect("/welcome");
+    } else {
+        res.sendFile(path.join(__dirname, "..", "client", "index.html"));
+    }
 });
 
 app.listen(process.env.PORT || 3001, function () {
