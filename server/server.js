@@ -7,6 +7,8 @@ const db = require("./utils/db.js");
 const { hash, compare } = require("./utils/bc.js");
 const cookieSession = require("cookie-session");
 const csurf = require("csurf");
+const ses = require("../ses");
+const cryptoRandomString = require("crypto-random-string");
 
 //middleware
 
@@ -107,12 +109,85 @@ app.post("/login", (req, res) => {
         });
 });
 
+app.post("/password/reset/start", (req, res) => {
+    const { email } = req.body;
+    db.getUser(email)
+        .then(({ rows }) => {
+            if (rows.length > 0) {
+                const secretCode = cryptoRandomString({
+                    length: 6,
+                });
+                return db.addCode(email, secretCode);
+            } else {
+                res.json({
+                    success: false,
+                    error: true,
+                });
+            }
+        })
+        .then(({ rows }) => {
+            console.log("Code added to table", rows[0]);
+            return ses.sendEmail(
+                rows[0].email,
+                "Pithagora - Reset your password",
+                `You recently requested a password reset. Please enter the following code to reset your password before it expires: ${rows[0].code}`
+            );
+        })
+        .then(() => {
+            res.json({
+                success: true,
+                error: false,
+            });
+        })
+        .catch((error) => {
+            console.log("Error in password reset: ", error);
+            res.json({
+                success: false,
+                error: true,
+            });
+        });
+});
+
+app.post("/password/reset/verify", (req, res) => {
+    const { email, code, newPassword } = req.body;
+    console.log("Email: ", email);
+    db.getCode(email)
+        .then(({ rows }) => {
+            console.log("code in db: ", rows[rows.length - 1].code);
+            if (code == rows[rows.length - 1].code) {
+                return hash(newPassword);
+            } else {
+                res.json({
+                    success: false,
+                    error: true,
+                });
+            }
+        })
+        .then((password_hash) => {
+            return db.updatePassword(email, password_hash);
+        })
+        .then(() => {
+            res.json({
+                success: true,
+            });
+        })
+        .catch((error) => {
+            console.log("Error verifying code", error);
+            res.json({ success: false, error: true });
+        });
+});
+
 app.get("*", function (req, res) {
     if (!req.session.userId) {
         res.redirect("/welcome");
     } else {
         res.sendFile(path.join(__dirname, "..", "client", "index.html"));
     }
+});
+
+app.get("/logout", (req, res) => {
+    req.session = null;
+    res.redirect("/");
 });
 
 app.listen(process.env.PORT || 3001, function () {
