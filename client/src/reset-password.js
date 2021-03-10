@@ -124,7 +124,6 @@ export default class ResetPassword extends React.Component {
                         </button>
                     </div>
                 )}
-                ;
                 {step == 3 && (
                     <div>
                         <h4>Success!</h4>
@@ -134,7 +133,6 @@ export default class ResetPassword extends React.Component {
                         </p>
                     </div>
                 )}
-                ;
             </div>
         );
     }

@@ -43,7 +43,7 @@ module.exports.getCode = (email) => {
     return db.query(q, params);
 };
 
-exports.updatePassword = (email, password) => {
+module.exports.updatePassword = (email, password) => {
     const q = `
         UPDATE users
         SET password = $2
