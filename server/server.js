@@ -8,6 +8,10 @@ const { hash, compare } = require("./utils/bc.js");
 const cookieSession = require("cookie-session");
 const csurf = require("csurf");
 const ses = require("../ses");
+const s3 = require("../s3");
+const multer = require("multer");
+const uidSafe = require("uid-safe");
+const { s3Url } = require("../config.json");
 const cryptoRandomString = require("crypto-random-string");
 
 //middleware
@@ -29,6 +33,24 @@ app.use(function (req, res, next) {
 app.use(express.urlencoded({ extended: false }));
 
 app.use(compression());
+
+const diskStorage = multer.diskStorage({
+    destination: function (req, file, callback) {
+        callback(null, __dirname + "/uploads");
+    },
+    filename: function (req, file, callback) {
+        uidSafe(24).then(function (uid) {
+            callback(null, uid + path.extname(file.originalname));
+        });
+    },
+});
+
+const uploader = multer({
+    storage: diskStorage,
+    limits: {
+        fileSize: 2097152,
+    },
+});
 
 app.use(express.static(path.join(__dirname, "..", "client", "public")));
 
@@ -81,7 +103,6 @@ app.post("/register", (req, res) => {
 
 app.post("/login", (req, res) => {
     const { email, password } = req.body;
-    // console.log("email & password:");
     if (email == "" || password == "") {
         return res.json({
             success: false,
@@ -114,10 +135,10 @@ app.post("/password/reset/start", (req, res) => {
     db.getUser(email)
         .then(({ rows }) => {
             if (rows.length > 0) {
-                const secretCode = cryptoRandomString({
+                const code = cryptoRandomString({
                     length: 6,
                 });
-                return db.addCode(email, secretCode);
+                return db.addCode(email, code);
             } else {
                 res.json({
                     success: false,
@@ -129,8 +150,8 @@ app.post("/password/reset/start", (req, res) => {
             console.log("Code added to table", rows[0]);
             return ses.sendEmail(
                 rows[0].email,
-                "Pithagora - Reset your password",
-                `You recently requested a password reset. Please enter the following code to reset your password before it expires: ${rows[0].code}`
+                `You recently requested a password reset. Please enter the following code to reset your password before it expires: ${rows[0].code}`,
+                "Pithagora - Reset your password"
             );
         })
         .then(() => {
@@ -150,32 +171,78 @@ app.post("/password/reset/start", (req, res) => {
 
 app.post("/password/reset/verify", (req, res) => {
     const { email, code, newPassword } = req.body;
-    console.log("Email: ", email);
     db.getCode(email)
         .then(({ rows }) => {
-            console.log("code in db: ", rows[rows.length - 1].code);
-            if (code == rows[rows.length - 1].code) {
-                return hash(newPassword);
+            if (rows[rows.length - 1].code == code) {
+                hash(newPassword)
+                    .then((new_password_hash) => {
+                        db.updatePassword(email, new_password_hash)
+                            .then(() => {
+                                res.json({ success: true });
+                            })
+                            .catch((error) => {
+                                console.log("Error", error);
+                            });
+                    })
+                    .catch((error) => {
+                        console.log("Error", error);
+                    });
             } else {
-                res.json({
-                    success: false,
-                    error: true,
-                });
+                console.log("No match!");
+                res.json({ success: false });
             }
         })
-        .then((password_hash) => {
-            return db.updatePassword(email, password_hash);
-        })
-        .then(() => {
-            res.json({
-                success: true,
-            });
-        })
         .catch((error) => {
-            console.log("Error verifying code", error);
-            res.json({ success: false, error: true });
+            res.json({ success: false });
         });
 });
+
+app.get("/user", (req, res) => {
+    db.getUserById(req.session.userId)
+        .then(({ rows }) => {
+            console.log("user data: ", rows[0]);
+            console.log("image url: ", rows[0].image_url);
+            res.json({ userData: rows[0] });
+        })
+        .catch(() => {
+            console.log("error in getUserById");
+        });
+});
+
+//workflow like imageboard (same bucket because lazy)
+
+app.post(
+    "/user/uploadimage",
+    uploader.single("image"),
+    s3.upload,
+    (req, res) => {
+        console.log("post working");
+        if (req.file) {
+            const { filename } = req.file;
+            db.addImage(req.session.userId, s3Url + filename)
+                .then(({ rows }) => {
+                    console.log(
+                        "Successfully added image to db: ",
+                        rows[0].image_url
+                    );
+                    res.json({
+                        success: true,
+                        imageUrl: rows[0].image_url,
+                    });
+                })
+                .catch((error) => {
+                    console.log("Error adding image to db ", error);
+                    res.json({
+                        success: false,
+                    });
+                });
+        } else {
+            res.json({
+                success: false,
+            });
+        }
+    }
+);
 
 app.get("*", function (req, res) {
     if (!req.session.userId) {

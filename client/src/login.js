@@ -1,6 +1,5 @@
 import React from "react";
-import instance from "./axios";
-// import axios from "./axios";
+import axios from "./axios";
 import { Link } from "react-router-dom";
 
 export default class Login extends React.Component {
@@ -14,7 +13,7 @@ export default class Login extends React.Component {
 
     handleClick() {
         // console.log("clicked!!!");
-        instance
+        axios
             .post("/login", this.state)
             .then(({ data }) => {
                 console.log("data", data);
@@ -52,7 +51,7 @@ export default class Login extends React.Component {
     render() {
         return (
             <div className="form">
-                <h3>Register here:</h3>
+                <h3>Login</h3>
                 {this.state.error && <p>Something went wrong</p>}
                 <span>
                     *
@@ -78,6 +77,12 @@ export default class Login extends React.Component {
                 <button id="submit" onClick={() => this.handleClick()}>
                     SUBMIT
                 </button>
+                <p>
+                    <Link to="/password/reset/start" id="loginClick">
+                        {" "}
+                        <em>Forgot your password?</em>
+                    </Link>
+                </p>
                 <p>
                     Not a member?{" "}
                     <Link to="/" id="loginClick">

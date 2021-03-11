@@ -1,11 +1,12 @@
 import React from "react";
-import instance from "./axios";
+import axios from "./axios";
 import { Link } from "react-router-dom";
 
 export default class ResetPassword extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            error: false,
             step: 1,
         };
     }
@@ -17,7 +18,7 @@ export default class ResetPassword extends React.Component {
     }
 
     submitEmail() {
-        instance
+        axios
             .post("/password/reset/start", {
                 email: this.state.email,
             })
@@ -29,7 +30,6 @@ export default class ResetPassword extends React.Component {
                     });
                 } else {
                     this.setState({
-                        success: false,
                         error: true,
                     });
                 }
@@ -37,19 +37,14 @@ export default class ResetPassword extends React.Component {
             .catch((err) => {
                 console.log("Error submitting email: ", err);
                 this.setState({
-                    success: false,
                     error: true,
                 });
             });
     }
 
     submitCodeAndPassword() {
-        instance
-            .post("/password/reset/verify", {
-                email: this.state.email,
-                code: this.state.code,
-                newPassword: this.state.password,
-            })
+        axios
+            .post("/password/reset/verify", this.state)
             .then(({ data }) => {
                 if (data.success) {
                     this.setState({
@@ -58,7 +53,6 @@ export default class ResetPassword extends React.Component {
                     });
                 } else {
                     this.setState({
-                        success: false,
                         error: true,
                     });
                 }
@@ -66,7 +60,6 @@ export default class ResetPassword extends React.Component {
             .catch((err) => {
                 console.log("Error verifying code: ", err);
                 this.setState({
-                    success: false,
                     error: true,
                 });
             });
@@ -79,8 +72,8 @@ export default class ResetPassword extends React.Component {
                 <h3>Reset Password</h3>
                 {this.state.error && <p>Oops, something went wrong.</p>}
                 {step == 1 && (
-                    <div>
-                        <h4>Please enter your email address</h4>
+                    <div className="form">
+                        <p>Please enter your email address</p>
                         <input
                             name="email"
                             type="email"
@@ -93,11 +86,12 @@ export default class ResetPassword extends React.Component {
                         <button id="submit" onClick={() => this.submitEmail()}>
                             Submit
                         </button>
+                        <br />
                     </div>
                 )}
                 {step == 2 && (
-                    <div>
-                        <h4>Please enter the code you received</h4>
+                    <div className="form">
+                        <p>Please enter the code you received</p>
                         <input
                             name="code"
                             type="text"
@@ -107,9 +101,9 @@ export default class ResetPassword extends React.Component {
                             onChange={(e) => this.handleChange(e)}
                         />
                         <br />
-                        <h4>Please enter a new password</h4>
+                        <p>Please enter a new password</p>
                         <input
-                            name="password"
+                            name="newPassword"
                             type="password"
                             placeholder="Password"
                             required
@@ -122,14 +116,18 @@ export default class ResetPassword extends React.Component {
                         >
                             Submit
                         </button>
+                        <br />
                     </div>
                 )}
                 {step == 3 && (
-                    <div>
+                    <div className="form">
                         <h4>Success!</h4>
                         <p>
-                            You can now <Link to="/login">LOGIN</Link> with your
-                            new password.
+                            You can now{" "}
+                            <Link to="/login" id="loginClick">
+                                LOGIN
+                            </Link>{" "}
+                            with your new password.
                         </p>
                     </div>
                 )}

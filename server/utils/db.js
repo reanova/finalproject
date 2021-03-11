@@ -1,7 +1,7 @@
 const spicedPg = require("spiced-pg");
 const db = spicedPg(
     process.env.DATABASE_URL ||
-        `postgres:postgres:postgres@localhost:5432/petition`
+        `postgres:postgres:postgres@localhost:5432/fennelsocialnetwork`
 );
 
 module.exports.addUser = (first, last, email, password_hash) => {
@@ -20,6 +20,15 @@ module.exports.getUser = (email) => {
     WHERE email = $1
     `;
     const params = [email];
+    return db.query(q, params);
+};
+
+module.exports.getUserById = (id) => {
+    const q = `
+        SELECT * FROM users
+        WHERE id = $1
+    `;
+    const params = [id];
     return db.query(q, params);
 };
 
@@ -43,12 +52,12 @@ module.exports.getCode = (email) => {
     return db.query(q, params);
 };
 
-module.exports.updatePassword = (email, password_hash) => {
+module.exports.updatePassword = (email, new_password_hash) => {
     const q = `
         UPDATE users
-        SET password = $2
+        SET password_hash = $2
         WHERE email = $1
     `;
-    const params = [email, password_hash];
+    const params = [email, new_password_hash];
     return db.query(q, params);
 };

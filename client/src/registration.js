@@ -1,6 +1,5 @@
 import React from "react";
-import instance from "./axios";
-// import axios from "./axios";
+import axios from "./axios";
 import { Link } from "react-router-dom";
 
 export default class Registration extends React.Component {
@@ -14,7 +13,7 @@ export default class Registration extends React.Component {
 
     handleClick() {
         // console.log("clicked!!!");
-        instance
+        axios
             .post("/register", this.state)
             .then(({ data }) => {
                 console.log("data", data);

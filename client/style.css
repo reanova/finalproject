@@ -104,6 +104,22 @@ body {
     border-radius: 10px;
 }
 
+.reset-passwd {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile-pic {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+}
+
 @media (min-aspect-ratio: 16/9) {
     #videoBG {
         width: 100%;
