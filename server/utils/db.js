@@ -25,7 +25,7 @@ module.exports.getUser = (email) => {
 
 module.exports.getUserById = (id) => {
     const q = `
-        SELECT * FROM users
+        SELECT first,last,image_url FROM users
         WHERE id = $1
     `;
     const params = [id];
@@ -59,5 +59,15 @@ module.exports.updatePassword = (email, new_password_hash) => {
         WHERE email = $1
     `;
     const params = [email, new_password_hash];
+    return db.query(q, params);
+};
+
+module.exports.addImage = (image_url, id) => {
+    const q = `
+    UPDATE users
+    SET image_url = $1
+    WHERE id = $2   
+    `;
+    const params = [image_url, id];
     return db.query(q, params);
 };

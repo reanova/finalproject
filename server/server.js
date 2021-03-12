@@ -202,7 +202,7 @@ app.get("/user", (req, res) => {
         .then(({ rows }) => {
             console.log("user data: ", rows[0]);
             console.log("image url: ", rows[0].image_url);
-            res.json({ userData: rows[0] });
+            res.json({ rows });
         })
         .catch(() => {
             console.log("error in getUserById");
@@ -213,21 +213,21 @@ app.get("/user", (req, res) => {
 
 app.post(
     "/user/uploadimage",
-    uploader.single("image"),
+    uploader.single("file"),
     s3.upload,
     (req, res) => {
         console.log("post working");
         if (req.file) {
             const { filename } = req.file;
-            db.addImage(req.session.userId, s3Url + filename)
+            db.addImage(s3Url + filename, req.session.userId)
                 .then(({ rows }) => {
                     console.log(
                         "Successfully added image to db: ",
-                        rows[0].image_url
+                        s3Url + filename
                     );
                     res.json({
                         success: true,
-                        imageUrl: rows[0].image_url,
+                        imageUrl: s3Url + filename,
                     });
                 })
                 .catch((error) => {
@@ -244,17 +244,17 @@ app.post(
     }
 );
 
+app.get("/logout", (req, res) => {
+    req.session = null;
+    res.redirect("/");
+});
+
 app.get("*", function (req, res) {
     if (!req.session.userId) {
         res.redirect("/welcome");
     } else {
         res.sendFile(path.join(__dirname, "..", "client", "index.html"));
     }
-});
-
-app.get("/logout", (req, res) => {
-    req.session = null;
-    res.redirect("/");
 });
 
 app.listen(process.env.PORT || 3001, function () {

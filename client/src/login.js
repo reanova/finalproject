@@ -74,7 +74,7 @@ export default class Login extends React.Component {
                 </span>
                 <span id="mandatory">* Mandatory fields</span>
                 <br />
-                <button id="submit" onClick={() => this.handleClick()}>
+                <button className="submit" onClick={() => this.handleClick()}>
                     SUBMIT
                 </button>
                 <p>

@@ -13,19 +13,20 @@ export default class Uploader extends Component {
         console.log("uploader mounted!");
     }
 
-    uploadImage(e) {
+    handleChange(e) {
+        console.log("upload file selected!");
+        this.file = e.target.files[0];
+    }
+
+    uploadImage() {
         const formData = new FormData();
-        formData.append("image", e.target.files[0]);
+        formData.append("file", this.file);
         axios
             .post("/user/uploadimage", formData)
-            .then(({ data }) => {
-                console.log("Image upload response data: ", data);
-                console.log("Image: ", data.imageUrl);
-                if (data.success) {
-                    this.props.setProfilePic(data.imageUrl);
-                } else {
-                    this.setState({ error: true });
-                }
+            .then((response) => {
+                console.log("Image upload response data: ", response.data);
+                console.log("Image: ", response.data.imageUrl);
+                this.props.setProfilePic(response.data.imageUrl);
             })
             .catch((err) => {
                 console.log("Error uploading image: ", err);
@@ -35,14 +36,21 @@ export default class Uploader extends Component {
 
     render() {
         return (
-            <div>
-                <h2 className="uploader-text">
-                    This is my uploader component!
-                </h2>
-
-                <h2 onClick={() => this.methodInUploader()}>
-                    Click here to run method in uploader!
-                </h2>
+            <div id="modal">
+                <p className="close" onClick={this.props.toggleUploader}>
+                    X
+                </p>
+                <h3>Want to upload a profile picture?</h3>
+                <input
+                    onChange={(e) => this.handleChange(e)}
+                    name="image"
+                    type="file"
+                    accept="image/*"
+                />
+                <br />
+                <button id="upload" onClick={() => this.uploadImage()}>
+                    UPLOAD
+                </button>
             </div>
         );
     }

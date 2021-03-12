@@ -2,13 +2,16 @@ import { Component } from "react";
 import axios from "./axios";
 import ProfilePic from "./profilepic";
 import Uploader from "./uploader";
+import Footer from "./footer";
+import Video from "./bgvideo";
 
 export default class App extends Component {
     constructor() {
         super();
         this.state = {
-            first: "Layla",
-            last: "Arias",
+            first: "",
+            last: "",
+            imageUrl: "",
             uploaderIsVisible: false,
         };
     }
@@ -21,14 +24,27 @@ export default class App extends Component {
         axios
             .get("/user")
             .then(({ data }) => {
-                if (!data.imageUrl) {
-                    data.imageUrl = "/randomuser.png";
+                const userData = data.rows[0];
+                if (!userData.imageUrl) {
+                    userData.imageUrl = "/randomuser.png";
                 }
-                this.setState(data.userData);
+                this.setState({
+                    first: userData.first,
+                    last: userData.last,
+                    imageUrl: userData.imageUrl,
+                });
+                console.log(this.state.first);
             })
             .catch((error) => {
                 console.log("Error fetching user data: ", error);
             });
+    }
+
+    logout() {
+        axios.get("/logout").then(() => {
+            window.location.reload();
+            console.log("logged out");
+        });
     }
 
     toggleUploader() {
@@ -38,34 +54,45 @@ export default class App extends Component {
         });
     }
 
-    setProfilePic(url) {
-        console.log("Im running in App!!! and my argument is: ", url);
+    setProfilePic(image_url) {
+        console.log("Url from child: ", image_url);
+        this.setState({
+            imageUrl: image_url,
+            uploaderIsVisible: !this.state.uploaderIsVisible,
+        });
     }
 
     render() {
         return (
-            <div>
-                <h1>Hello from App</h1>
-
-                <ProfilePic
-                    first={this.state.first}
-                    last={this.state.last}
-                    imageUrl={this.state.imageUrl}
-                />
-
-                <h2 onClick={() => this.toggleUploader()}>
-                    Click here!! Changing uploaderIsVisible state with a
-                    method!!
-                </h2>
-
+            <>
+                <header>
+                    <img className="logo1" src="./Pithagora.png" />
+                    <div className="navbar">
+                        <p className="nav-link">
+                            {this.state.first} {this.state.last}
+                        </p>
+                        <p className="nav-link" onClick={() => this.logout()}>
+                            Logout
+                        </p>
+                        <ProfilePic
+                            first={this.state.first}
+                            last={this.state.last}
+                            imageUrl={this.state.imageUrl}
+                            toggleUploader={() => this.toggleUploader()}
+                        />
+                    </div>
+                </header>
+                <Video />
                 {this.state.uploaderIsVisible && (
                     <Uploader
-                        methodInApp={this.methodInApp}
-                        // methodInApp={(arg) => this.methodInApp(arg)}
-                        toggleModal={() => this.toggleModal()}
+                        setProfilePic={(imageUrl) =>
+                            this.setProfilePic(imageUrl)
+                        }
+                        toggleUploader={() => this.toggleUploader()}
                     />
                 )}
-            </div>
+                <Footer />
+            </>
         );
     }
 }

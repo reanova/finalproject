@@ -7,6 +7,7 @@ CREATE TABLE users (
     last VARCHAR NOT NULL CHECK (last <> ''),
     email VARCHAR NOT NULL UNIQUE CHECK (email <> ''),
     password_hash VARCHAR NOT NULL CHECK (password_hash <> ''),
+    image_url TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
