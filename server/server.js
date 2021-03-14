@@ -201,7 +201,6 @@ app.get("/user", (req, res) => {
     db.getUserById(req.session.userId)
         .then(({ rows }) => {
             console.log("user data: ", rows[0]);
-            console.log("image url: ", rows[0].image_url);
             res.json({ rows });
         })
         .catch(() => {
@@ -243,6 +242,38 @@ app.post(
         }
     }
 );
+
+app.post("/bio", (req, res) => {
+    const { bio } = req.body;
+    db.addBio(bio, req.session.userId)
+        .then(({ rows }) => {
+            res.json(rows[0].bio);
+        })
+        .catch((error) => {
+            console.log("error in db", error);
+            res.json({ error: true });
+        });
+});
+
+app.get("/user/:id.json", (req, res) => {
+    db.getUserById(req.params.id)
+        .then(({ rows }) => {
+            console.log("successfully fetched other profile: ", rows[0]);
+            const { id, first, last, image_url, bio } = rows[0];
+            res.json({
+                success: true,
+                id: id,
+                first: first,
+                last: last,
+                image_url: image_url,
+                bio: bio,
+            });
+        })
+        .catch((error) => {
+            console.log("Error fetching other user profile: ", error);
+            res.json({ success: false });
+        });
+});
 
 app.get("/logout", (req, res) => {
     req.session = null;

@@ -4,6 +4,9 @@ import ProfilePic from "./profilepic";
 import Uploader from "./uploader";
 import Footer from "./footer";
 import Video from "./bgvideo";
+import Profile from "./profile";
+import { BrowserRouter, Route, Link } from "react-router-dom";
+import OtherProfile from "./otherProfile";
 
 export default class App extends Component {
     constructor() {
@@ -13,6 +16,7 @@ export default class App extends Component {
             last: "",
             imageUrl: "",
             uploaderIsVisible: false,
+            bio: "",
         };
     }
 
@@ -25,15 +29,15 @@ export default class App extends Component {
             .get("/user")
             .then(({ data }) => {
                 const userData = data.rows[0];
-                if (!userData.imageUrl) {
-                    userData.imageUrl = "/randomuser.png";
+                if (!userData.image_url) {
+                    userData.image_url = "/randomuser.png";
                 }
                 this.setState({
                     first: userData.first,
                     last: userData.last,
-                    imageUrl: userData.imageUrl,
+                    imageUrl: userData.image_url,
+                    bio: userData.bio,
                 });
-                console.log(this.state.first);
             })
             .catch((error) => {
                 console.log("Error fetching user data: ", error);
@@ -54,35 +58,70 @@ export default class App extends Component {
         });
     }
 
-    setProfilePic(image_url) {
-        console.log("Url from child: ", image_url);
+    setProfilePic(imageUrl) {
+        console.log("Url from child: ", imageUrl);
         this.setState({
-            imageUrl: image_url,
+            imageUrl: imageUrl,
             uploaderIsVisible: !this.state.uploaderIsVisible,
+        });
+    }
+
+    updateBioInApp(updateBio) {
+        this.setState({
+            bio: updateBio,
         });
     }
 
     render() {
         return (
             <>
-                <header>
-                    <img className="logo1" src="./Pithagora.png" />
-                    <div className="navbar">
-                        <p className="nav-link">
-                            {this.state.first} {this.state.last}
-                        </p>
-                        <p className="nav-link" onClick={() => this.logout()}>
-                            Logout
-                        </p>
-                        <ProfilePic
-                            first={this.state.first}
-                            last={this.state.last}
-                            imageUrl={this.state.imageUrl}
-                            toggleUploader={() => this.toggleUploader()}
-                        />
-                    </div>
-                </header>
-                <Video />
+                <BrowserRouter>
+                    <header>
+                        <div className="navbar">
+                            <img className="logo1" src="./Pithagora.png" />
+                            <Link to="/" className="nav-link1">
+                                {this.state.first} {this.state.last}
+                            </Link>
+                            <p
+                                className="nav-link"
+                                onClick={() => this.logout()}
+                            >
+                                Logout
+                            </p>
+                            <ProfilePic
+                                imageUrl={this.state.imageUrl}
+                                class1="profile-pic"
+                                class2="image-pic"
+                                toggleUploader={() => this.toggleUploader()}
+                            />
+                        </div>
+                    </header>
+                    <Video />
+                    <Route
+                        exact
+                        path="/"
+                        render={() => (
+                            <Profile
+                                first={this.state.first}
+                                last={this.state.last}
+                                bio={this.state.bio}
+                                imageUrl={this.state.imageUrl}
+                                toggleUploader={() => this.toggleUploader()}
+                                updateBioInApp={this.updateBioInApp.bind(this)}
+                            />
+                        )}
+                    />
+                    <Route
+                        path="/user/:id"
+                        render={(props) => (
+                            <OtherProfile
+                                key={props.match.url}
+                                match={props.match}
+                                history={props.history}
+                            />
+                        )}
+                    />
+                </BrowserRouter>
                 {this.state.uploaderIsVisible && (
                     <Uploader
                         setProfilePic={(imageUrl) =>

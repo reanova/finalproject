@@ -32,6 +32,28 @@ export default class Registration extends React.Component {
             });
     }
 
+    onKeyPress(e) {
+        if (e.charCode === 13) {
+            axios
+                .post("/register", this.state)
+                .then(({ data }) => {
+                    console.log("data", data);
+                    if (data.success) {
+                        // redirect
+                        location.replace("/");
+                    } else {
+                        // render an error message
+                        this.setState({
+                            error: true,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.log("err in axios POST /registration: ", error);
+                });
+        }
+    }
+
     handleChange(e) {
         // console.log("change is running!");
         this.setState(
@@ -60,6 +82,7 @@ export default class Registration extends React.Component {
                         name="first"
                         placeholder="First name"
                         onChange={(e) => this.handleChange(e)}
+                        onKeyPress={(e) => this.onKeyPress(e)}
                     />
                 </span>
                 <br />
@@ -70,6 +93,7 @@ export default class Registration extends React.Component {
                         name="last"
                         placeholder="Last Name"
                         onChange={(e) => this.handleChange(e)}
+                        onKeyPress={(e) => this.onKeyPress(e)}
                     />
                 </span>
                 <br />
@@ -80,6 +104,7 @@ export default class Registration extends React.Component {
                         name="email"
                         placeholder="Email"
                         onChange={(e) => this.handleChange(e)}
+                        onKeyPress={(e) => this.onKeyPress(e)}
                     />
                 </span>
                 <br />
@@ -90,12 +115,13 @@ export default class Registration extends React.Component {
                         name="password"
                         placeholder="Password"
                         onChange={(e) => this.handleChange(e)}
+                        onKeyPress={(e) => this.onKeyPress(e)}
                     />
                 </span>
                 <span id="mandatory">* Mandatory fields</span>
                 <br />
                 <button className="submit" onClick={() => this.handleClick()}>
-                    SUBMIT
+                    Submit
                 </button>
                 <p>
                     Already a member?{" "}

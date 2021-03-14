@@ -32,6 +32,28 @@ export default class Login extends React.Component {
             });
     }
 
+    onKeyPress(event) {
+        if (event.charCode === 13) {
+            axios
+                .post("/login", this.state)
+                .then(({ data }) => {
+                    console.log("data", data);
+                    if (data.success) {
+                        // redirect
+                        location.replace("/");
+                    } else {
+                        // render an error message
+                        this.setState({
+                            error: true,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.log("err in axios POST /login: ", error);
+                });
+        }
+    }
+
     handleChange(e) {
         // console.log("change is running!");
         this.setState(
@@ -60,6 +82,7 @@ export default class Login extends React.Component {
                         name="email"
                         placeholder="Email"
                         onChange={(e) => this.handleChange(e)}
+                        onKeyPress={(e) => this.onKeyPress(e)}
                     />
                 </span>
                 <br />
@@ -70,15 +93,16 @@ export default class Login extends React.Component {
                         name="password"
                         placeholder="Password"
                         onChange={(e) => this.handleChange(e)}
+                        onKeyPress={(e) => this.onKeyPress(e)}
                     />
                 </span>
                 <span id="mandatory">* Mandatory fields</span>
                 <br />
                 <button className="submit" onClick={() => this.handleClick()}>
-                    SUBMIT
+                    Login
                 </button>
                 <p>
-                    <Link to="/password/reset/start" id="loginClick">
+                    <Link to="/password/reset/start" id="changePwClick">
                         {" "}
                         <em>Forgot your password?</em>
                     </Link>

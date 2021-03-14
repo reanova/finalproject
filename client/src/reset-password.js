@@ -83,7 +83,10 @@ export default class ResetPassword extends React.Component {
                             onChange={(e) => this.handleChange(e)}
                         ></input>
                         <br />
-                        <button id="submit" onClick={() => this.submitEmail()}>
+                        <button
+                            className="submit"
+                            onClick={() => this.submitEmail()}
+                        >
                             Submit
                         </button>
                         <br />
@@ -111,7 +114,7 @@ export default class ResetPassword extends React.Component {
                         />
                         <br />
                         <button
-                            id="submit"
+                            className="submit"
                             onClick={() => this.submitCodeAndPassword()}
                         >
                             Submit

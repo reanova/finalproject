@@ -43,7 +43,7 @@ export default class Uploader extends Component {
                 <h3>Want to upload a profile picture?</h3>
                 <input
                     onChange={(e) => this.handleChange(e)}
-                    name="image"
+                    name="file"
                     type="file"
                     accept="image/*"
                 />

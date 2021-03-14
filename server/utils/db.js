@@ -25,7 +25,7 @@ module.exports.getUser = (email) => {
 
 module.exports.getUserById = (id) => {
     const q = `
-        SELECT first,last,image_url FROM users
+        SELECT first,last,image_url, bio FROM users
         WHERE id = $1
     `;
     const params = [id];
@@ -69,5 +69,16 @@ module.exports.addImage = (image_url, id) => {
     WHERE id = $2   
     `;
     const params = [image_url, id];
+    return db.query(q, params);
+};
+
+module.exports.addBio = (bio, id) => {
+    const q = `
+    UPDATE users
+    SET bio = $1
+    WHERE id = $2
+    RETURNING bio
+    `;
+    const params = [bio, id];
     return db.query(q, params);
 };

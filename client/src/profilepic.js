@@ -2,9 +2,9 @@
 // we can also use destructuring to pull up the properties inside props
 export default function ProfilePic(props) {
     return (
-        <div id="profilepic">
+        <div className={props.class1}>
             <img
-                className="profile-pic"
+                className={props.class2}
                 src={props.imageUrl}
                 onClick={props.toggleUploader}
             />
