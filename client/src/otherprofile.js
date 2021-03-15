@@ -35,12 +35,17 @@ export default class OtherProfile extends Component {
     render() {
         return (
             <div>
-                <p id="othername">
+                <h2 id="othername">
                     {this.state.first} {this.state.last}
-                </p>
-                <div className="profile">
-                    <img className="bio-pic" src={this.state.imageUrl} />
-                    <span>{this.state.bio}</span>
+                </h2>
+                <div className="otherprofile">
+                    <div className="bio-pic">
+                        <img
+                            className="large-image-pic"
+                            src={this.state.imageUrl}
+                        />
+                    </div>
+                    <span id="otherbio">{this.state.bio}</span>
                 </div>
             </div>
         );

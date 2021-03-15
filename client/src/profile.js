@@ -5,7 +5,7 @@ export default function Profile(props) {
     return (
         <div>
             <h2 id="hello">Hello {props.first}</h2>
-            <div id="profile">
+            <div className="profile">
                 <ProfilePic
                     imageUrl={props.imageUrl}
                     toggleUploader={() => props.toggleUploader()}

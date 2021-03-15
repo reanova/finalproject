@@ -14,7 +14,6 @@ export default class Bio extends Component {
         if (this.props.bio) {
             this.setState({
                 bio: this.props.bio,
-                edit: true,
             });
         } else {
             this.setState({

@@ -78,7 +78,7 @@ export default class App extends Component {
                 <BrowserRouter>
                     <header>
                         <div className="navbar">
-                            <img className="logo1" src="./Pithagora.png" />
+                            <img className="logo1" src="/Pithagora.png" />
                             <Link to="/" className="nav-link1">
                                 {this.state.first} {this.state.last}
                             </Link>

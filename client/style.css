@@ -7,7 +7,6 @@ body {
     color: white;
     font-size: large;
     font-family: "DM Sans", sans-serif;
-    background-image: url("backgroundpic.png");
 }
 #videoBG {
     position: absolute;
@@ -160,10 +159,10 @@ body {
 }
 
 #bioinfo {
-    font-weight: bold;
-    width: 100%;
-    font-size: 1.2em;
-    box-shadow: inset 30px 0px 150px rgba(39, 39, 36, 0.822);
+    width: 400px;
+    font-size: 1.1em;
+    backdrop-filter: blur(20px);
+    box-shadow: inset 20px 0px 200px rgba(44, 44, 43, 0.664);
     padding: 5px 0px 5px 5px;
     border-radius: 5px;
 }
@@ -330,16 +329,29 @@ header {
 }
 
 #othername {
-    font-size: 1em;
-    padding-right: 20px;
-    margin-right: 20px;
+    padding-left: 20px;
 }
 
-#profile {
+.profile {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.otherprofile {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: flex-start;
+}
+
+#otherbio {
+    width: 400px;
+    font-size: 1.1em;
+    padding: 15px 5px 15px 15px;
+    border-radius: 5px;
+    backdrop-filter: blur(20px);
+    box-shadow: inset 20px 0px 200px rgba(44, 44, 43, 0.664);
 }
 
 textarea {
