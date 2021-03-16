@@ -81,8 +81,8 @@ export function FindPeople() {
                                                 <img
                                                     className="searchimage"
                                                     src={
-                                                        `${user.image_url}` ||
-                                                        "randomuser.png"
+                                                        user.image_url ||
+                                                        "/randomuser.png"
                                                     }
                                                 />
                                             </div>
