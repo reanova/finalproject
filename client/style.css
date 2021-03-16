@@ -367,6 +367,91 @@ textarea {
     color: white;
 }
 
+.resultuserinfo {
+    font-size: 1.1em;
+    padding: 15px 5px 15px 15px;
+    border-radius: 5px;
+    backdrop-filter: blur(20px);
+    box-shadow: inset 20px 0px 200px rgba(20, 20, 20, 0.664);
+    border: 1px black solid;
+}
+
+#topcontainer {
+    position: fixed;
+    top: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    height: 90%;
+}
+
+.containerresults {
+    overflow: scroll;
+    height: 800px;
+    width: 90%;
+}
+
+.search-pic {
+    width: 150px;
+    height: 150px;
+    margin-right: 20px;
+    color: #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px white solid;
+    margin-left: 10px;
+    position: relative;
+}
+
+#containersearch {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    transition: 0.5s cubic-bezier(0.235, 0.035, 0, 1.53);
+    margin-right: 10px;
+}
+
+#containersearch:hover {
+    box-shadow: inset 0px 20px 50px 250px rgba(51, 49, 49, 0.336);
+    border-radius: 5px;
+}
+
+.searchimage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    position: absolute;
+}
+
+.searchinfobio {
+    text-decoration: none;
+    color: white;
+}
+
+.findusers {
+    width: 100vw;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.findusersinput {
+    background-color: black;
+    color: white;
+    width: 200px;
+    height: 30px;
+    border-radius: 3px;
+}
+
+label {
+    padding-top: 5px;
+    padding-right: 5px;
+    font-weight: bold;
+}
+
 @media (min-aspect-ratio: 16/9) {
     #videoBG {
         width: 100%;

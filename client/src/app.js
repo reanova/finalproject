@@ -7,6 +7,7 @@ import Video from "./bgvideo";
 import Profile from "./profile";
 import { BrowserRouter, Route, Link } from "react-router-dom";
 import OtherProfile from "./otherProfile";
+import { FindPeople } from "./findpeople";
 
 export default class App extends Component {
     constructor() {
@@ -79,6 +80,12 @@ export default class App extends Component {
                     <header>
                         <div className="navbar">
                             <img className="logo1" src="/Pithagora.png" />
+                            <Link
+                                to={"/getusers/most-recent"}
+                                className="nav-link1"
+                            >
+                                Find Users
+                            </Link>
                             <Link to="/" className="nav-link1">
                                 {this.state.first} {this.state.last}
                             </Link>
@@ -115,6 +122,16 @@ export default class App extends Component {
                         path="/user/:id"
                         render={(props) => (
                             <OtherProfile
+                                key={props.match.url}
+                                match={props.match}
+                                history={props.history}
+                            />
+                        )}
+                    />
+                    <Route
+                        path="/getusers/most-recent"
+                        render={(props) => (
+                            <FindPeople
                                 key={props.match.url}
                                 match={props.match}
                                 history={props.history}

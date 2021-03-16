@@ -82,3 +82,18 @@ module.exports.addBio = (bio, id) => {
     const params = [bio, id];
     return db.query(q, params);
 };
+
+module.exports.findnewUsers = () => {
+    const q = `SELECT * FROM users
+        ORDER BY id DESC
+        LIMIT 5;
+        `;
+    return db.query(q);
+};
+
+module.exports.findreqUsers = (val) => {
+    return db.query(
+        `SELECT * FROM users WHERE first ILIKE $1 OR last ILIKE $1;`,
+        [val + "%"]
+    );
+};

@@ -275,6 +275,28 @@ app.get("/user/:id.json", (req, res) => {
         });
 });
 
+app.get("/getusers/most-recent", (req, res) => {
+    db.findnewUsers()
+        .then(({ rows }) => {
+            res.json({ success: true, mostRecent: rows });
+        })
+        .catch((error) => {
+            console.log("err in get most recent users", error);
+            res.json({ success: false });
+        });
+});
+
+app.get("/getusers/:val", (req, res) => {
+    db.findreqUsers(req.params.val)
+        .then(({ rows }) => {
+            res.json({ resultUsers: rows });
+        })
+        .catch((error) => {
+            console.log("error in getting requested users", error);
+            res.json({ success: false });
+        });
+});
+
 app.get("/logout", (req, res) => {
     req.session = null;
     res.redirect("/");
