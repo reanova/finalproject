@@ -80,10 +80,7 @@ export default class App extends Component {
                     <header>
                         <div className="navbar">
                             <img className="logo1" src="/Pithagora.png" />
-                            <Link
-                                to={"/getusers/most-recent"}
-                                className="nav-link1"
-                            >
+                            <Link to={"/findusers"} className="nav-link1">
                                 Find Users
                             </Link>
                             <Link to="/" className="nav-link1">
@@ -129,7 +126,7 @@ export default class App extends Component {
                         )}
                     />
                     <Route
-                        path="/getusers/most-recent"
+                        path="/findusers"
                         render={(props) => (
                             <FindPeople
                                 key={props.match.url}

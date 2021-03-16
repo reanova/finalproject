@@ -98,8 +98,7 @@ export function FindPeople() {
                                                 </p>
                                                 <strong>Bio: </strong>
                                                 <p className="searchinfobio">
-                                                    {user.bio ||
-                                                        "Persona Non Grata"}
+                                                    {user.bio || "Sui Generis"}
                                                 </p>
                                             </div>
                                         </div>

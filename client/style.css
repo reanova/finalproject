@@ -414,7 +414,7 @@ textarea {
 }
 
 #containersearch:hover {
-    box-shadow: inset 0px 20px 50px 250px rgba(51, 49, 49, 0.336);
+    box-shadow: 10px 20px 20px 20px rgba(57, 58, 15, 0.267);
     border-radius: 5px;
 }
 
