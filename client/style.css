@@ -452,6 +452,11 @@ label {
     font-weight: bold;
 }
 
+.titleResults {
+    align-self: flex-start;
+    margin-left: 50px;
+}
+
 @media (min-aspect-ratio: 16/9) {
     #videoBG {
         width: 100%;

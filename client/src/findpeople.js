@@ -57,13 +57,17 @@ export function FindPeople() {
                     />
                 </div>
                 <br />
+                {searchTerm == "" && (
+                    <p className="titleResults">
+                        Below are the most recent creators:
+                    </p>
+                )}
+                {searchTerm != "" && (
+                    <p className="titleResults">
+                        Search results for: {searchTerm}
+                    </p>
+                )}
                 <div className="containerresults">
-                    {searchTerm == "" && (
-                        <p>Below are the most recent creators</p>
-                    )}
-                    {searchTerm != "" && (
-                        <p>Search results for: {searchTerm}</p>
-                    )}
                     {resultUsers &&
                         resultUsers.map((user) => {
                             return (
