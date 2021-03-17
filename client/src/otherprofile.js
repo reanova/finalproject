@@ -14,7 +14,8 @@ export default class OtherProfile extends Component {
         axios.get(`/user/${id}.json`).then(({ data }) => {
             if (data.success) {
                 console.log("Successfully fetched other user data: ", data);
-                const { id, first, last, image_url, bio } = data;
+                const { first, last, image_url, bio, loggedUserId } = data;
+                console.log("id of loggeduser", loggedUserId);
                 this.setState(
                     {
                         id: id,
@@ -22,6 +23,7 @@ export default class OtherProfile extends Component {
                         last: last,
                         imageUrl: image_url || "/randomuser.png",
                         bio: bio,
+                        loggedUserId: loggedUserId,
                     },
                     () => console.log("Other profile state: ", this.state)
                 );
@@ -30,8 +32,6 @@ export default class OtherProfile extends Component {
             }
         });
     }
-
-    // handleChange() {}
 
     render() {
         return (
@@ -48,7 +48,9 @@ export default class OtherProfile extends Component {
                     </div>
                     <p id="otherbio">{this.state.bio || "Sui Generis"}</p>
                 </div>
-                <RequestButton otherUserId={this.props.match.params.id} />
+                {this.state.loggedUserId != this.state.id && (
+                    <RequestButton otherUserId={this.props.match.params.id} />
+                )}
             </div>
         );
     }

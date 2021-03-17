@@ -267,6 +267,7 @@ app.get("/user/:id.json", (req, res) => {
                 last: last,
                 image_url: image_url,
                 bio: bio,
+                loggedUserId: req.session.userId,
             });
         })
         .catch((error) => {
@@ -327,7 +328,9 @@ app.get("/friendship-status/:otherUserId", (req, res) => {
 app.post("/make-friend-request/:otherUserId", (req, res) => {
     db.startFriendship(req.session.userId, req.params.otherUserId)
         .then(() => {
-            res.json({ success: true });
+            res.json({
+                success: true,
+            });
         })
         .catch((error) => {
             console.log("Error initializing friendship: ", error);
