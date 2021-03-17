@@ -6,10 +6,10 @@ export function RequestButton({ otherUserId }) {
     const [error, setError] = useState(false);
 
     useEffect(() => {
+        console.log("Other user ID: ", otherUserId);
         axios.get(`/friendship-status/${otherUserId}`).then(({ data }) => {
             if (data.success) {
                 console.log("Got state of friendship!");
-                console.log("data", data);
                 if (data.accepted) {
                     setButtonText("End Friendship");
                 } else if (data.awaitingUserAction) {
@@ -43,7 +43,7 @@ export function RequestButton({ otherUserId }) {
                     setError(true);
                 }
             });
-        } else if (buttonText == "End Friendship") {
+        } else {
             axios.post(`/end-friendship/${otherUserId}`).then(({ data }) => {
                 if (data.success) {
                     setButtonText("Friend Request");
