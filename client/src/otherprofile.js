@@ -1,5 +1,6 @@
 import { Component } from "react";
 import axios from "./axios";
+import { RequestButton } from "./requestbutton";
 
 export default class OtherProfile extends Component {
     constructor(props) {
@@ -30,7 +31,7 @@ export default class OtherProfile extends Component {
         });
     }
 
-    handleChange() {}
+    // handleChange() {}
 
     render() {
         return (
@@ -45,8 +46,9 @@ export default class OtherProfile extends Component {
                             src={this.state.imageUrl}
                         />
                     </div>
-                    <span id="otherbio">{this.state.bio}</span>
+                    <p id="otherbio">{this.state.bio || "Sui Generis"}</p>
                 </div>
+                <RequestButton otherUserId={this.props.match.params.id} />
             </div>
         );
     }

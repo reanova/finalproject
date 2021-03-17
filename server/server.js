@@ -297,6 +297,66 @@ app.get("/getusers/:val", (req, res) => {
         });
 });
 
+app.get("/friendship-status/:otherUserId", (req, res) => {
+    db.getFriendshipStatus(req.session.userId, req.params.otherUserId)
+        .then(({ rows }) => {
+            console.log("Friendship status: ", rows);
+            if (!rows[0]) {
+                res.json({ success: false });
+            } else if (rows[0].accepted) {
+                res.json({ success: true, accepted: true });
+            } else if (
+                !rows[0].accepted &&
+                rows[0].sender_id == req.params.otherUserId
+            ) {
+                res.json({ success: true, awaitingUserAction: true });
+            } else if (
+                !rows[0].accepted &&
+                rows[0].sender_id == req.session.userId
+            ) {
+                res.json({ success: true, awaitingOtherAction: true });
+            } else {
+                res.json({ success: false });
+            }
+        })
+        .catch((error) => {
+            console.log("Error fetching friendship status: ", error);
+        });
+});
+
+app.post("/make-friend-request/:otherUserId", (req, res) => {
+    db.startFriendship(req.session.userId, req.params.otherUserId)
+        .then(() => {
+            res.json({ success: true });
+        })
+        .catch((error) => {
+            console.log("Error initializing friendship: ", error);
+            res.json({ success: false });
+        });
+});
+
+app.post("/add-friendship/:otherUserId", (req, res) => {
+    db.acceptFriendship(req.session.userId, req.params.otherUserId)
+        .then(() => {
+            res.json({ success: true });
+        })
+        .catch((error) => {
+            console.log("Error accepting friend request", error);
+            res.json({ success: false });
+        });
+});
+
+app.post("/end-friendship/:otherUserId", (req, res) => {
+    db.endFriendship(req.session.userId, req.params.otherUserId)
+        .then(() => {
+            res.json({ success: true });
+        })
+        .catch((err) => {
+            console.log("Error ending friendship", err);
+            res.json({ success: false });
+        });
+});
+
 app.get("/logout", (req, res) => {
     req.session = null;
     res.redirect("/");
