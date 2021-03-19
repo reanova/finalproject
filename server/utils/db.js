@@ -127,7 +127,7 @@ module.exports.acceptFriendship = (userId, otherId) => {
     return db.query(q, params);
 };
 
-exports.endFriendship = (userId, otherId) => {
+module.exports.endFriendship = (userId, otherId) => {
     const q = `
         DELETE FROM friendships
         WHERE (receiver_id = $1 AND sender_id = $2)
@@ -136,3 +136,28 @@ exports.endFriendship = (userId, otherId) => {
     const params = [userId, otherId];
     return db.query(q, params);
 };
+
+module.exports.getConnectionsWannabes = (userId) => {
+    const q = `
+        SELECT users.id, first, last, image_url, accepted
+        FROM friendships
+        JOIN users
+        ON (accepted = false AND receiver_id = $1 AND sender_id = users.id)
+        OR (accepted = true AND receiver_id = $1 AND sender_id = users.id)
+        OR (accepted = true AND sender_id = $1 AND receiver_id = users.id)
+    `;
+    const params = [userId];
+    return db.query(q, params);
+};
+
+// exports.getConnections = (userId) => {
+//     const q = `
+//         SELECT users.id, first, last, image_url, accepted
+//         FROM friendships
+//         JOIN users
+//         ON (accepted = true AND receiver_id = $1 AND sender_id = users.id)
+//         OR (accepted = true AND sender_id = $1 AND receiver_id = users.id)
+//     `;
+//     const params = [userId];
+//     return db.query(q, params);
+// };

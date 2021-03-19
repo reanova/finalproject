@@ -218,6 +218,9 @@ body {
     object-fit: cover;
     border-radius: 50%;
     position: absolute;
+    filter: gray; /* IE6-9 */
+    -webkit-filter: grayscale(1); /* Google Chrome, Safari 6+ & Opera 15+ */
+    filter: grayscale(1);
 }
 
 .bio-pic {
@@ -481,6 +484,60 @@ label {
 .titleResults {
     align-self: flex-start;
     margin-left: 50px;
+}
+
+.connections {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    width: calc((100vw - 70px));
+    margin-left: 30px;
+    margin-right: 30px;
+    overflow-x: scroll;
+    backdrop-filter: blur(20px);
+    box-shadow: inset 20px 0px 200px rgba(20, 20, 20, 0.664);
+    border-radius: 10px;
+}
+
+.connectionCard {
+    width: 400px;
+    height: 400px;
+    margin-left: 10px;
+    margin-top: 20px;
+}
+
+.userCard {
+    text-decoration: none;
+    color: white;
+    filter: gray; /* IE6-9 */
+    -webkit-filter: grayscale(1); /* Google Chrome, Safari 6+ & Opera 15+ */
+    filter: grayscale(1);
+    transition: 0.5s cubic-bezier(0.235, 0.035, 0, 1.53);
+}
+
+.userCard:hover {
+    -webkit-filter: grayscale(0); /* Google Chrome, Safari 6+ & Opera 15+ */
+    filter: none;
+    text-decoration: line-through;
+}
+
+.imglist {
+    width: 250px;
+    height: 250px;
+    border: 3px solid white;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.connectionText {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.titleFriends {
+    margin-left: 20px;
 }
 
 @media (min-aspect-ratio: 16/9) {

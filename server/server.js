@@ -360,6 +360,20 @@ app.post("/end-friendship/:otherUserId", (req, res) => {
         });
 });
 
+app.get("/connections-wannabes", (req, res) => {
+    db.getConnectionsWannabes(req.session.userId)
+        .then(({ rows }) => {
+            console.log("Connections and wannabes: ", rows);
+            res.json({ success: true, connectionsWannabes: rows });
+        })
+        .catch((error) => {
+            console.log(
+                "unable to get connections and wannabes from db: ",
+                error
+            );
+        });
+});
+
 app.get("/logout", (req, res) => {
     req.session = null;
     res.redirect("/");

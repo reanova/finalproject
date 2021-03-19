@@ -8,6 +8,7 @@ import Profile from "./profile";
 import { BrowserRouter, Route, Link } from "react-router-dom";
 import OtherProfile from "./otherProfile";
 import { FindPeople } from "./findpeople";
+import Friends from "./friends";
 
 export default class App extends Component {
     constructor() {
@@ -84,14 +85,20 @@ export default class App extends Component {
                                 Find Users
                             </Link>
                             <Link to="/" className="nav-link1">
-                                {this.state.first} {this.state.last}
+                                My Profile
                             </Link>
-                            <p
-                                className="nav-link"
+                            <Link
+                                to="/current-connections"
+                                className="nav-link1"
+                            >
+                                Connections
+                            </Link>
+                            <span
+                                className="nav-link1"
                                 onClick={() => this.logout()}
                             >
                                 Logout
-                            </p>
+                            </span>
                             <ProfilePic
                                 imageUrl={this.state.imageUrl}
                                 class1="profile-pic"
@@ -135,6 +142,7 @@ export default class App extends Component {
                             />
                         )}
                     />
+                    <Route path="/current-connections" component={Friends} />
                 </BrowserRouter>
                 {this.state.uploaderIsVisible && (
                     <Uploader
