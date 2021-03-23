@@ -81,6 +81,9 @@ export default class App extends Component {
                     <header>
                         <div className="navbar">
                             <img className="logo1" src="/Pithagora.png" />
+                            <Link to={"/chat"} className="nav-link1">
+                                Chat
+                            </Link>
                             <Link to={"/findusers"} className="nav-link1">
                                 Find Users
                             </Link>

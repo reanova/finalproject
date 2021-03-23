@@ -150,14 +150,24 @@ module.exports.getConnectionsWannabes = (userId) => {
     return db.query(q, params);
 };
 
-// exports.getConnections = (userId) => {
-//     const q = `
-//         SELECT users.id, first, last, image_url, accepted
-//         FROM friendships
-//         JOIN users
-//         ON (accepted = true AND receiver_id = $1 AND sender_id = users.id)
-//         OR (accepted = true AND sender_id = $1 AND receiver_id = users.id)
-//     `;
-//     const params = [userId];
-//     return db.query(q, params);
-// };
+module.exports.getMessages = () => {
+    const q = `
+        SELECT chat_messages.id, message, sent_at, sender_id, users.first, users.last, users.image_url
+        FROM chat_messages
+        JOIN users
+        ON (sender_id = users.id)
+        ORDER BY sent_at DESC
+        LIMIT 10
+    `;
+    return db.query(q);
+};
+
+module.exports.addMessage = (senderId, message) => {
+    const q = `
+        INSERT INTO chat_messages (sender_id, message)
+        VALUES ($1, $2)
+        RETURNING id
+    `;
+    const params = [senderId, message];
+    return db.query(q, params);
+};

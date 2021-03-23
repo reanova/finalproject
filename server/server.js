@@ -13,15 +13,30 @@ const multer = require("multer");
 const uidSafe = require("uid-safe");
 const { s3Url } = require("../config.json");
 const cryptoRandomString = require("crypto-random-string");
+//socket intro//
+const server = require("http").Server(app);
+const io = require("socket.io")(server, {
+    allowRequest: (req, callback) =>
+        callback(null, req.headers.referer.startsWith("http://localhost:3000")),
+});
+//
 
 //middleware
 
-app.use(
-    cookieSession({
-        secret: `I am hAngry`,
-        maxAge: 1000 * 60 * 60 * 24 * 14,
-    })
-);
+app.use(express.static(path.join(__dirname, "..", "client", "public")));
+
+app.use(compression());
+
+//cookiesocketized
+const cookieSessionMiddleware = cookieSession({
+    secret: `I am hAngry`,
+    maxAge: 1000 * 60 * 60 * 24 * 90,
+});
+app.use(cookieSessionMiddleware);
+io.use(function (socket, next) {
+    cookieSessionMiddleware(socket.request, socket.request.res, next);
+});
+//
 
 app.use(csurf());
 
@@ -32,8 +47,7 @@ app.use(function (req, res, next) {
 
 app.use(express.urlencoded({ extended: false }));
 
-app.use(compression());
-
+//amazon server
 const diskStorage = multer.diskStorage({
     destination: function (req, file, callback) {
         callback(null, __dirname + "/uploads");
@@ -51,8 +65,7 @@ const uploader = multer({
         fileSize: 2097152,
     },
 });
-
-app.use(express.static(path.join(__dirname, "..", "client", "public")));
+//
 
 app.use(express.json());
 
@@ -374,6 +387,11 @@ app.get("/connections-wannabes", (req, res) => {
         });
 });
 
+app.get("/", function (req, res) {
+    // just a normal route
+    res.sendStatus(200);
+});
+
 app.get("/logout", (req, res) => {
     req.session = null;
     res.redirect("/");
@@ -387,6 +405,38 @@ app.get("*", function (req, res) {
     }
 });
 
-app.listen(process.env.PORT || 3001, function () {
+//server listens now instead of app
+server.listen(process.env.PORT || 3001, function () {
     console.log("I'm listening.");
+});
+
+io.on("connect", (socket) => {
+    if (!socket.request.session.userId) {
+        return socket.disconnect(true);
+    } else {
+        const id = socket.request.session.userId;
+
+        db.getMessages()
+            .then(({ rows }) => {
+                socket.emit("chatMessages", rows.reverse());
+            })
+            .catch((error) => {
+                console.log("Error getting chat messages:", error);
+            });
+
+        socket.on("chatMessage", (message) => {
+            db.addMessage(id, message).then((resp) => {
+                db.getUserbyId(id).then((data) => {
+                    io.sockets.emit("chatMessage", {
+                        sent_at: resp.rows[0].sent_at,
+                        id: resp.rows[0].id,
+                        first: data.rows[0].first,
+                        image_url: data.rows[0].image_url,
+                        last: data.rows[0].last,
+                        message: message,
+                    });
+                });
+            });
+        });
+    }
 });
