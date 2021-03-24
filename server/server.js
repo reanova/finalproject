@@ -21,32 +21,6 @@ const io = require("socket.io")(server, {
 });
 //
 
-//middleware
-
-app.use(express.static(path.join(__dirname, "..", "client", "public")));
-
-app.use(compression());
-
-//cookiesocketized
-const cookieSessionMiddleware = cookieSession({
-    secret: `I am hAngry`,
-    maxAge: 1000 * 60 * 60 * 24 * 90,
-});
-app.use(cookieSessionMiddleware);
-io.use(function (socket, next) {
-    cookieSessionMiddleware(socket.request, socket.request.res, next);
-});
-//
-
-app.use(csurf());
-
-app.use(function (req, res, next) {
-    res.cookie("mytoken", req.csrfToken());
-    next();
-});
-
-app.use(express.urlencoded({ extended: false }));
-
 //amazon server
 const diskStorage = multer.diskStorage({
     destination: function (req, file, callback) {
@@ -67,7 +41,29 @@ const uploader = multer({
 });
 //
 
+//cookiesocketized
+const cookieSessionMiddleware = cookieSession({
+    secret: `I am hAngry`,
+    maxAge: 1000 * 60 * 60 * 24 * 90,
+});
+app.use(cookieSessionMiddleware);
+io.use(function (socket, next) {
+    cookieSessionMiddleware(socket.request, socket.request.res, next);
+});
+//
+
+//middleware
+app.use(csurf());
+app.use(function (req, res, next) {
+    res.cookie("mytoken", req.csrfToken());
+    next();
+});
+app.use(compression());
+
+app.use(express.static(path.join(__dirname, "..", "client", "public")));
 app.use(express.json());
+
+// app.use(express.urlencoded({ extended: false }));
 
 //routes
 
@@ -387,11 +383,6 @@ app.get("/connections-wannabes", (req, res) => {
         });
 });
 
-app.get("/", function (req, res) {
-    // just a normal route
-    res.sendStatus(200);
-});
-
 app.get("/logout", (req, res) => {
     req.session = null;
     res.redirect("/");
@@ -410,33 +401,62 @@ server.listen(process.env.PORT || 3001, function () {
     console.log("I'm listening.");
 });
 
+// if (arguments.length == 2) {
+//     onlineUsers[socket.id] = userId;
+// } else if (arguments.length == 1) {
+//     delete onlineUsers[socket.id];
+// }
+// let onlineUsersArr = Object.values(onlineUsers);
+// let distinctUsers = [...new Set(arrayOfIds)];
+// let onlineUsersInfo = db.getOnlineUsers(distinctUsers);
+// io.sockets.emit("onlineUsers", onlineUsersInfo.rows);
+
+const onlineUsers = {};
+
 io.on("connect", (socket) => {
     if (!socket.request.session.userId) {
         return socket.disconnect(true);
     } else {
-        const id = socket.request.session.userId;
-
+        const userId = socket.request.session.userId;
+        console.log(`Socket with the id ${socket.id} is now connected`);
+        onlineUsers[socket.id] = userId;
         db.getMessages()
             .then(({ rows }) => {
                 socket.emit("chatMessages", rows.reverse());
+                // console.log("chatMessages to see", rows);
             })
             .catch((error) => {
-                console.log("Error getting chat messages:", error);
+                console.log("Error in emitting chat messages:", error);
             });
 
-        socket.on("chatMessage", (message) => {
-            db.addMessage(id, message).then((resp) => {
-                db.getUserbyId(id).then((data) => {
-                    io.sockets.emit("chatMessage", {
-                        sent_at: resp.rows[0].sent_at,
-                        id: resp.rows[0].id,
-                        first: data.rows[0].first,
-                        image_url: data.rows[0].image_url,
-                        last: data.rows[0].last,
-                        message: message,
-                    });
+        socket.on("chatMessage", (data) => {
+            console.log(`New chat msg by userId:${userId} with msg:${data}`);
+            db.addMessage(userId, data)
+                .then(({ rows }) => {
+                    const id = rows[0].id;
+                    const sent_at = rows[0].sent_at;
+                    console.log("Chat msg added to db!");
+                    db.getUserById(userId)
+                        .then(({ rows }) => {
+                            io.emit("chatMessage", {
+                                first: rows[0].first,
+                                last: rows[0].last,
+                                image_url: rows[0].image_url,
+                                id: id,
+                                message: data,
+                                sent_at: sent_at,
+                            });
+                        })
+                        .catch((error) => {
+                            console.log(
+                                "Error fetching chat msg sender:",
+                                error
+                            );
+                        });
+                })
+                .catch((error) => {
+                    console.log("Error adding chat msg to db:", error);
                 });
-            });
         });
     }
 });

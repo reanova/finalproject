@@ -157,7 +157,6 @@ module.exports.getMessages = () => {
         JOIN users
         ON (sender_id = users.id)
         ORDER BY sent_at DESC
-        LIMIT 10
     `;
     return db.query(q);
 };
@@ -166,8 +165,15 @@ module.exports.addMessage = (senderId, message) => {
     const q = `
         INSERT INTO chat_messages (sender_id, message)
         VALUES ($1, $2)
-        RETURNING id
+        RETURNING id, sent_at
     `;
     const params = [senderId, message];
     return db.query(q, params);
+};
+
+module.exports.getOnlineUsers = (arrayOfIds) => {
+    const query =
+        "SELECT id, first, last, image_url FROM users WHERE id = ANY($1)";
+    const params = [arrayOfIds];
+    return db.query(query, params);
 };

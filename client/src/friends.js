@@ -46,7 +46,9 @@ export default function Friends() {
                     />
                 </div>
             ) : (
-                <h4>It is a bit empty here</h4>
+                <div className="connectionsnot">
+                    <h4>It is a bit empty here</h4>
+                </div>
             )}
             <h3 className="titleFriends">Your current connections:</h3>
             {connections && connections.length > 0 ? (
@@ -58,7 +60,9 @@ export default function Friends() {
                     />
                 </div>
             ) : (
-                <h4>It is a bit empty here</h4>
+                <div className="connectionsnot">
+                    <h4>It is a bit empty here</h4>
+                </div>
             )}
         </>
     );

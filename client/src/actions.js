@@ -31,16 +31,26 @@ export async function unfriend(id) {
     }
 }
 
-export function chatMessages(messages) {
+export function chatMessages(msgs) {
+    // console.log("Already added message history", msgs);
     return {
-        type: "RECENT_MESSAGES",
-        messages: messages,
+        type: "MESSAGE_HISTORY",
+        msgs,
     };
 }
 
-export function chatMessage(message) {
+export function chatMessage(msg) {
+    // console.log("actions new message", msg);
     return {
         type: "NEW_MESSAGE",
-        message: message,
+        msg,
+    };
+}
+
+export async function onlineUsers(users) {
+    console.log("actions onlineUsers", users);
+    return {
+        type: "ONLINE_USERS",
+        data: users,
     };
 }
