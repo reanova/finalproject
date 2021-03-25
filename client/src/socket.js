@@ -27,7 +27,7 @@ export const init = (store) => {
             store.dispatch(userJoinedAct(userJoined));
         });
 
-        socket.on("user disconnected", (userLeft) => {
+        socket.on("userLeft", (userLeft) => {
             console.log("After user is leaving: ", userLeft);
             store.dispatch(userLeftAct(userLeft));
         });
