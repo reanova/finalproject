@@ -10,6 +10,7 @@ import OtherProfile from "./otherProfile";
 import { FindPeople } from "./findpeople";
 import Friends from "./friends";
 import Chat from "./chat";
+// import { socket } from "./socket";
 
 export default class App extends Component {
     constructor() {

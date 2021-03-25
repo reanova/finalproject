@@ -177,3 +177,30 @@ module.exports.getOnlineUsers = (arrayOfIds) => {
     const params = [arrayOfIds];
     return db.query(query, params);
 };
+
+module.exports.getWallPosts = (id) => {
+    return db.query(
+        `SELECT posts.id AS id, posts.created_at AS created_at, posts.image_id AS image_id, poster_id, text, first, last 
+        FROM posts 
+        JOIN users 
+        ON (receiver_id = $1 AND poster_id = users.id) 
+        ORDER BY id DESC;`,
+        [id]
+    );
+};
+
+module.exports.addWallPost = (text, poster_id, receiver_id) => {
+    return db.query(
+        `INSERT INTO posts (text, poster_id, receiver_id) 
+        VALUES ($1, $2, $3) RETURNING *;`,
+        [text, poster_id, receiver_id]
+    );
+};
+
+module.exports.addWallImage = (poster_id, receiver_id, image_id) => {
+    return db.query(
+        `INSERT INTO posts (poster_id, receiver_id, image_id) 
+        VALUES ($1, $2, $3) RETURNING *;`,
+        [poster_id, receiver_id, image_id]
+    );
+};

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
+import OnlineUsers from "./onlineusers";
 
 export default function Chat() {
     const chatMessages = useSelector((state) => state && state.chatMessages);
@@ -17,7 +18,7 @@ export default function Chat() {
         console.log("new scrollTop:", elemRef.current.scrollTop);
     }, [chatMessages]);
 
-    function sendChatMsg(e) {
+    function Keycheck(e) {
         if (e.key == "Enter") {
             e.preventDefault();
             chatMsg = e.target.value;
@@ -36,33 +37,37 @@ export default function Chat() {
             <div id="chat-top-container">
                 <div id="chat-container" ref={elemRef}>
                     {chatMessages &&
-                        chatMessages.map(function (user_msg) {
+                        chatMessages.map(function (user) {
                             return (
-                                <div className="chat-block" key={user_msg.id}>
+                                <div className="chat-block" key={user.id}>
                                     <img
                                         className="chat-pic"
-                                        src={user_msg.image_url}
+                                        src={user.image_url}
                                     ></img>
                                     <div className="chat-details">
                                         <h4 className="chat-time">
-                                            {user_msg.first} {user_msg.last} at{" "}
+                                            {user.first} {user.last} at{" "}
                                             {new Date(
-                                                user_msg.sent_at
+                                                user.sent_at
                                             ).toLocaleString()}
                                         </h4>
                                         <p className="chat-msg">
-                                            {user_msg.message}
+                                            {user.message}
                                         </p>
                                     </div>
                                 </div>
                             );
                         })}
                 </div>
-                <textarea
-                    id="chat-msg-editor"
-                    onKeyDown={sendChatMsg}
-                    placeholder="Write your message here..."
-                ></textarea>
+                <div id="userdash">
+                    <OnlineUsers />
+                    <br />
+                    <textarea
+                        id="chat-msg-editor"
+                        onKeyDown={Keycheck}
+                        placeholder="Write your message here..."
+                    ></textarea>
+                </div>
             </div>
         </>
     );

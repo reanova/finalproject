@@ -47,10 +47,26 @@ export function chatMessage(msg) {
     };
 }
 
-export async function onlineUsers(users) {
-    console.log("actions onlineUsers", users);
+export async function onlineUsersAct(onlineUsers) {
+    console.log("data in action", onlineUsers);
     return {
         type: "ONLINE_USERS",
-        data: users,
+        users: onlineUsers,
+    };
+}
+
+export function userJoinedAct(userJoined) {
+    // console.log("userJoined action!");
+    return {
+        type: "USER_JOINED",
+        user: userJoined,
+    };
+}
+
+export function userLeftAct(userLeft) {
+    // console.log("userLeft action!");
+    return {
+        type: "USER_LEFT",
+        user: userLeft,
     };
 }

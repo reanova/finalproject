@@ -207,7 +207,8 @@ app.post("/password/reset/verify", (req, res) => {
 });
 
 app.get("/user", (req, res) => {
-    db.getUserById(req.session.userId)
+    const userId = req.session.userId;
+    db.getUserById(userId)
         .then(({ rows }) => {
             console.log("user data: ", rows[0]);
             res.json({ rows });
@@ -401,62 +402,91 @@ server.listen(process.env.PORT || 3001, function () {
     console.log("I'm listening.");
 });
 
-// if (arguments.length == 2) {
-//     onlineUsers[socket.id] = userId;
-// } else if (arguments.length == 1) {
-//     delete onlineUsers[socket.id];
-// }
-// let onlineUsersArr = Object.values(onlineUsers);
-// let distinctUsers = [...new Set(arrayOfIds)];
-// let onlineUsersInfo = db.getOnlineUsers(distinctUsers);
-// io.sockets.emit("onlineUsers", onlineUsersInfo.rows);
-
-const onlineUsers = {};
-
-io.on("connect", (socket) => {
-    if (!socket.request.session.userId) {
+let onlineUsers = {};
+io.on("connection", function (socket) {
+    const userId = socket.request.session.userId;
+    if (!userId) {
         return socket.disconnect(true);
-    } else {
-        const userId = socket.request.session.userId;
-        console.log(`Socket with the id ${socket.id} is now connected`);
-        onlineUsers[socket.id] = userId;
-        db.getMessages()
+    }
+    onlineUsers[socket.id] = userId;
+    const onlineUserIds = Object.values(onlineUsers);
+    console.log("userIds connected:", onlineUserIds);
+    let filteredUsers = onlineUserIds.filter(
+        (id, index) => onlineUserIds.indexOf(id) === index
+    );
+    console.log("filtered userIds connected:", filteredUsers);
+
+    db.getOnlineUsers(filteredUsers).then(({ rows }) => {
+        // console.log(`rows`, rows);
+        io.emit("online users", rows);
+    });
+
+    db.getUserById(userId)
+        .then(({ rows }) => {
+            // emit details of new user just joined to everyone else already connected
+            socket.broadcast.emit("userJoined", rows);
+        })
+        .catch((error) => {
+            console.log("Error getting details of new user joined:", error);
+        });
+
+    db.getMessages()
+        .then(({ rows }) => {
+            socket.emit("chatMessages", rows.reverse());
+            // console.log("chatMessages to see", rows);
+        })
+        .catch((error) => {
+            console.log("Error in emitting chat messages:", error);
+        });
+
+    socket.on("chatMessage", (data) => {
+        console.log(`New chat msg by userId:${userId} with msg:${data}`);
+        db.addMessage(userId, data)
             .then(({ rows }) => {
-                socket.emit("chatMessages", rows.reverse());
-                // console.log("chatMessages to see", rows);
+                const id = rows[0].id;
+                const sent_at = rows[0].sent_at;
+                console.log("Chat msg added to db!");
+                db.getUserById(userId)
+                    .then(({ rows }) => {
+                        io.emit("chatMessage", {
+                            first: rows[0].first,
+                            last: rows[0].last,
+                            image_url: rows[0].image_url,
+                            id: id,
+                            message: data,
+                            sent_at: sent_at,
+                        });
+                    })
+                    .catch((error) => {
+                        console.log("Error fetching chat msg sender:", error);
+                    });
             })
             .catch((error) => {
-                console.log("Error in emitting chat messages:", error);
+                console.log("Error adding chat msg to db:", error);
             });
+    });
 
-        socket.on("chatMessage", (data) => {
-            console.log(`New chat msg by userId:${userId} with msg:${data}`);
-            db.addMessage(userId, data)
-                .then(({ rows }) => {
-                    const id = rows[0].id;
-                    const sent_at = rows[0].sent_at;
-                    console.log("Chat msg added to db!");
-                    db.getUserById(userId)
-                        .then(({ rows }) => {
-                            io.emit("chatMessage", {
-                                first: rows[0].first,
-                                last: rows[0].last,
-                                image_url: rows[0].image_url,
-                                id: id,
-                                message: data,
-                                sent_at: sent_at,
-                            });
-                        })
-                        .catch((error) => {
-                            console.log(
-                                "Error fetching chat msg sender:",
-                                error
-                            );
-                        });
-                })
-                .catch((error) => {
-                    console.log("Error adding chat msg to db:", error);
-                });
-        });
-    }
+    socket.on("disconnect", () => {
+        // if (onlineUsers[socket.id]) {
+        //     onlineUsers[socket.id].delete(socket);
+        //     if (onlineUsers[socket.id].size === 0) {
+        //         delete onlineUsers[socket.id];
+        //         io.emit("userLeft", onlineUsers[socket.id]);
+        //     }
+        // }
+        var userIdDisconnected = onlineUsers[socket.id];
+        var userStillOnline = false;
+        delete onlineUsers[socket.id];
+
+        for (var socketId in onlineUsers) {
+            if (onlineUsers[socketId] == userIdDisconnected) {
+                userStillOnline = true;
+            }
+        }
+        console.log("userStillOnline:", userStillOnline);
+        if (!userStillOnline) {
+            console.log(`userId: ${userIdDisconnected} disconnected!`);
+            io.emit("userLeft", userIdDisconnected);
+        }
+    });
 });
