@@ -10,6 +10,7 @@ import OtherProfile from "./otherProfile";
 import { FindPeople } from "./findpeople";
 import Friends from "./friends";
 import Chat from "./chat";
+import Create from "./create";
 // import { socket } from "./socket";
 
 export default class App extends Component {
@@ -83,6 +84,9 @@ export default class App extends Component {
                     <header>
                         <div className="navbar">
                             <img className="logo1" src="/Pithagora.png" />
+                            <Link to={"/create"} className="nav-link1">
+                                Create
+                            </Link>
                             <Link to={"/chat"} className="nav-link1">
                                 Chat
                             </Link>
@@ -149,6 +153,7 @@ export default class App extends Component {
                     />
                     <Route path="/current-connections" component={Friends} />
                     <Route path="/chat" component={Chat} />
+                    <Route path="/create" component={Create} />
                 </BrowserRouter>
                 {this.state.uploaderIsVisible && (
                     <Uploader
